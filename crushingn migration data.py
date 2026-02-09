@@ -80,7 +80,11 @@ def crushMigrationData(year: int):
         try: 
             migration = pd.read_csv(MIGRATION_DIR / f"ef{year}c_rv.csv") 
         except FileNotFoundError:
-            raise FileNotFoundError(f"Missing migration CSV: ef{year}c_rv.csv")
+            print(f"ef{year}c_rv.csv not found; trying ef{year}c.csv")
+            try: 
+                migration = pd.read_csv(MIGRATION_DIR / f"ef{year}c.csv") 
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Missing migration CSV: ef{year}c.csv")
     
 
     # making folder to put formed csvs in if necessary
@@ -142,8 +146,7 @@ def crushMigrationData(year: int):
     print(f"crushed migration data saved to {out_file}")
 
 
-# for year in range(2004, 2025):
-#     if (year % 2 == 0):
-#         print(year)
-#         crushMigrationData(year)
-crushMigrationData(2018)
+for year in range(2004, 2025):
+    if (year % 2 == 0):
+        print(year)
+        crushMigrationData(year)
