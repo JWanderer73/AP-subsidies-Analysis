@@ -146,7 +146,7 @@ def crushMigrationData(year: int):
     print(f"crushed migration data saved to {out_file}")
 
 
-for year in range(2004, 2025):
-    if (year % 2 == 0):
-        print(year)
-        crushMigrationData(year)
+# for year in range(2004, 2025):
+#     if (year % 2 == 0):
+#         print(year)
+#         crushMigrationData(year)
