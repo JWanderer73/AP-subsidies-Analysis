@@ -131,6 +131,7 @@ def scaleOutcomeMeasureGrad(year: int) -> pd.Series:
     gradPercentByState = graduatingMakeup / totalMakeup
 
 
+
     # In[77]:
 
     print(f"writing to class {year} 4yr grad rate by state.csv")
@@ -141,4 +142,4 @@ def scaleOutcomeMeasureGrad(year: int) -> pd.Series:
 for year in range(2010, 2017):
     if (year % 2 == 0):
         print(year)
-        scaleGraduationRates(year)
+        scaleOutcomeMeasureGrad(year)

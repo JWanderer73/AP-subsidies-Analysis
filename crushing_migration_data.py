@@ -75,7 +75,8 @@ def crushMigrationData(year: int):
 
     # years prior to 2004 have a different organization scheme
     if (year < 2004):
-        print(f"year: {2004} unsupported")
+        crushMigrationPRE2024(year)
+        return
     else: 
         try: 
             migration = pd.read_csv(MIGRATION_DIR / f"ef{year}c_rv.csv") 
@@ -145,6 +146,95 @@ def crushMigrationData(year: int):
 
     print(f"crushed migration data saved to {out_file}")
 
+
+# years prior to 2004 had a different organization method for the data
+def crushMigrationPRE2024(year: int):
+
+    return
+
+    # I think there's some issues in the data for these years, but im messing with it in the curshing_migration_pre2004 notebook. 
+    ROOT = Path.cwd()
+    DATA_DIR = ROOT / "datasets"
+    IPEDS_DIR = DATA_DIR / "ipeds"
+    MIGRATION_DIR = IPEDS_DIR / "migration"
+
+    # years prior to 2004 have a different organization scheme
+    if (year >= 2004):
+        return
+    else: 
+        try: 
+            migration = pd.read_csv(MIGRATION_DIR / f"ef{year}c_rv.csv") 
+        except FileNotFoundError:
+            print(f"ef{year}c_rv.csv not found; trying ef{year}c.csv")
+            try: 
+                migration = pd.read_csv(MIGRATION_DIR / f"ef{year}c.csv") 
+            except FileNotFoundError:
+                print(f"ef{year}c.csv not found; trying ef{year}_c.csv")
+                try: 
+                    migration = pd.read_csv(MIGRATION_DIR / f"ef{year}_c.csv") 
+                except FileNotFoundError:
+                    print(f"ef{year}_c.csv not found; trying ef{year % 100}_c.csv")
+                    try: 
+                        migration = pd.read_csv(MIGRATION_DIR / f"ef{year % 100}_c.csv") 
+                    except FileNotFoundError:
+                        raise FileNotFoundError(f"Missing migration data for {year}")
+    # making folder to put formed csvs in if necessary
+
+    OUTPUT_DIR = IPEDS_DIR / "processed"
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    migration.columns = migration.columns.str.upper()
+
+    # getting unique IDs of schools in migration data
+    unique_schools = migration["UNITID"].unique()
+
+
+    migrationIDs = migration["UNITID"] # school ID
+    migrationState = migration["EFCSTATE"] # state code
+    migationStudents = migration["EFRES01"] # num first-time undergrad from that state
+
+    labels = ["UNITID"] + [code_to_state.get(str(i).zfill(2), "DEFAULT") for i in range(1, 59)] + ["GRAND TOTAL"]
+    labels
+
+
+    # loop through each row in migration to assemble an array containing state makeups for each unique school in migration data, then appending it to a dataframe (OPTIMIZE IF TOO SLOW)
+
+    merged = []   # holds rows 
+
+    currIdx = 0         # current row in migration data
+
+    TOTAL_LABEL_COUNT = 60              # state codes go from 1-58 (with gaps) + 1 for all US studenmts + 1 for total students
+    LAST_IDX = TOTAL_LABEL_COUNT - 1    # last idx of row
+    GRAND_TOTAL_STATE_CODE = 99         # state code for grand total
+
+    for schoolID in unique_schools:
+        row = migration.iloc[currIdx]
+        outputRow = [float("nan")] * TOTAL_LABEL_COUNT   
+        outputRow[0] = schoolID
+
+        while (currIdx < len(migrationIDs) and schoolID == migrationIDs[currIdx]):
+            if (migrationState[currIdx] < LAST_IDX):                                         
+                outputRow[migrationState[currIdx]] = migationStudents[currIdx]
+            elif (migrationState[currIdx] == GRAND_TOTAL_STATE_CODE):
+                outputRow[LAST_IDX] = migationStudents[currIdx]
+
+            currIdx += 1
+
+        merged.append(outputRow)
+
+        continue
+
+    # create dataframe from newly created rows, drop columns without values, replace null w/ 0
+
+    school_states = pd.DataFrame(merged, columns=labels)
+    school_states = school_states.dropna(axis=1, how="all")
+    school_states = school_states.fillna(0)
+
+    # put files in it
+    out_file = OUTPUT_DIR / f"{year}_crushed_migration.csv"
+    school_states.to_csv(out_file, index=False)
+
+    print(f"crushed migration data saved to {out_file}")
 
 # for year in range(2004, 2025):
 #     if (year % 2 == 0):

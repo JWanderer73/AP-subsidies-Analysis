@@ -114,12 +114,10 @@ def scaleGradRates(year: int) -> pd.Series:
     # In[58]:
 
     print(f"writing to class_{year}_4yr_gradrate_by_state.csv")
-    gradPercentByState.to_csv(PROCESSED_DIR / f"class_{year}_4yr_gradrate_by_state.csv", header=False)
+    gradPercentByState.to_csv(PROCESSED_DIR / f"class_{year}_4yr_gradrate_by_state.csv", header = ["GRADRATE"])
     return
 
-# for year in range(2004, 2017):
-#     print(year)
-#     if (year % 2 ==0):
-#         scaleGradRates(year)
-
-scaleGradRates(2012)
+for year in range(2004, 2017):
+    print(year)
+    if (year % 2 ==0):
+        scaleGradRates(year)
