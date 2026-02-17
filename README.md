@@ -5,7 +5,7 @@
 Analyzes the effects of AP subsidies on AP test quantity, average AP test scores, and college graduation rate. Also creates basic visualizations for these metrics. 
 
 Example visualization:
-
+<img width="984" height="584" alt="Screenshot 2026-02-16 230849" src="https://github.com/user-attachments/assets/c0ddb5f9-93c9-4846-9501-a5f43e83b67b" />
 
 ## Installation
 
